@@ -2,13 +2,13 @@ import closest from './util/closest.js'
 import isPromise from './util/isPromise.js'
 
 class AutocompleteCore {
+  _search = () => ['No results...']
   value = ''
   searchCounter = 0
   results = []
   selectedIndex = -1
 
   constructor({
-    search,
     autoSelect = false,
     setValue = () => {},
     setAttribute = () => {},
@@ -19,9 +19,6 @@ class AutocompleteCore {
     onLoading = () => {},
     onLoaded = () => {},
   } = {}) {
-    this.search = isPromise(search)
-      ? search
-      : value => Promise.resolve(search(value))
     this.autoSelect = autoSelect
     this.setValue = setValue
     this.setAttribute = setAttribute
@@ -34,8 +31,7 @@ class AutocompleteCore {
   }
 
   set search(searchFn) {
-    console.log('AutocompleteCore set search')
-    this.search = isPromise(searchFn)
+    this._search = isPromise(searchFn)
       ? searchFn
       : value => Promise.resolve(searchFn(value))
   }
@@ -132,7 +128,7 @@ class AutocompleteCore {
   updateResults = value => {
     const currentSearch = ++this.searchCounter
     this.onLoading()
-    this.search(value).then(results => {
+    this._search(value).then(results => {
       if (currentSearch !== this.searchCounter) {
         return
       }

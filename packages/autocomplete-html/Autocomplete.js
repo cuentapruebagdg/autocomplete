@@ -1,11 +1,10 @@
-import { LitElement, html } from 'lit-element'
-// import AutocompleteCore from '../autocomplete/dist/autocomplete.esm.js'
-// import uniqueId from '../autocomplete/util/uniqueId.js'
+import { LitElement, html, css } from 'lit-element'
+import AutocompleteCore from './AutocompleteCore.js'
+import uniqueId from './util/uniqueId.js'
 
 class Autocomplete extends LitElement {
   static get properties() {
     return {
-      search: { type: Function },
       autoSelect: { type: Boolean },
       defaultValue: { type: String },
       results: { type: Array },
@@ -16,15 +15,12 @@ class Autocomplete extends LitElement {
     super()
     // Default prop values
     this.autoSelect = false
-    // this.getResultValue = result => {
-    //   console.log('getResultValue', result)
-    //   return result
-    // }
+    this.getResultValue = result => result
     this.defaultValue = ''
 
     // Internal data
     this.value = ''
-    // this.resultListId = uniqueId('autocomplete-result-list-')
+    this.resultListId = uniqueId('autocomplete-result-list-')
     this.resultListId = 'autocomplete-result-list-1'
     this.results = []
     this.selectedIndex = -1
@@ -32,50 +28,38 @@ class Autocomplete extends LitElement {
     this.loading = false
     this.position = 'below'
     this.resetPosition = true
-    // this.core = new AutocompleteCore({
-    //   search: this.search,
-    //   autoSelect: this.autoSelect,
-    //   setValue: this.setValue,
-    //   onUpdate: this.handleUpdate,
-    //   onSubmit: this.handleSubmit,
-    //   onShow: this.handleShow,
-    //   onHide: this.handleHide,
-    //   onLoading: this.handleLoading,
-    //   onLoaded: this.handleLoaded,
-    // })
-    this.core = {
-      handleInput(event) {
-        console.log('core.handleInput', event.target.value)
-      },
-      handleKeyDown(event) {
-        console.log('core.handleKeyDown')
-      },
-      handleFocus() {
-        console.log('core.handleFocus')
-      },
-      handleBlur() {
-        console.log('core.handleBlur')
-      },
-      handleResultMouseDown() {
-        console.log('core.handleResultMouseDown')
-      },
-      handleResultClick() {
-        console.log('core.handleResultClick')
-      },
-    }
+    this.core = new AutocompleteCore({
+      autoSelect: this.autoSelect,
+      setValue: this.setValue,
+      onUpdate: this.handleUpdate,
+      onSubmit: this.handleSubmit,
+      onShow: this.handleShow,
+      onHide: this.handleHide,
+      onLoading: this.handleLoading,
+      onLoaded: this.handleLoaded,
+    })
+  }
+
+  static get styles() {
+    return css`
+      :host {
+        display: block;
+      }
+    `
+  }
+
+  set search(searchFn) {
+    this.core.search = searchFn
   }
 
   setValue(result) {
     this.value = result ? this.getResultValue(result) : ''
   }
 
-  handleUpdate(results, selectedIndex) {
+  handleUpdate = (results, selectedIndex) => {
     this.results = results
     this.selectedIndex = selectedIndex
-  }
-
-  handleSubmit(selectedResult) {
-    console.log('submit', selectedResult)
+    this.requestUpdate()
   }
 
   handleShow() {
@@ -95,11 +79,12 @@ class Autocomplete extends LitElement {
   }
 
   handleInput(event) {
-    const value = event.target.value
-    this.value = value
-    this.results = [`${value}-1`, `${value}-2`, `${value}-3`]
-    console.log('results:', this.results)
+    this.value = event.target.value
     this.core.handleInput(event)
+  }
+
+  handleSubmit(selectedResult) {
+    console.log('submit', selectedResult)
   }
 
   getResultValue(result) {
@@ -109,6 +94,7 @@ class Autocomplete extends LitElement {
 
   render() {
     return html`
+      <link rel="stylesheet" href="./style.css" />
       <div class="autocomplete">
         <input
           class="autocomplete-input"
@@ -121,7 +107,7 @@ class Autocomplete extends LitElement {
           aria-autocomplete="list"
           aria-haspopup="listbox"
           aria-owns="${this.resultListId}"
-          aria-expanded="${this.expanded ? 'true' : 'false'}"
+          aria-expanded="true"
           @input="${this.handleInput}"
           @keydown="${this.core.handleKeyDown}"
           @focus="${this.core.handleFocus}"
@@ -153,4 +139,4 @@ class Autocomplete extends LitElement {
   }
 }
 
-customElements.define('slate-autocomplete', Autocomplete)
+customElements.define('te-autocomplete', Autocomplete)

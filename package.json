@@ -3,6 +3,7 @@
   "scripts": {
     "postinstall": "lerna bootstrap",
     "start": "concurrently \"npm:storybook:js\" \"npm:storybook:vue\"",
+    "start:html": "es-dev-server --node-resolve --watch --root-dir packages/autocomplete-html --app-index index.html --port 4003",
     "start:docs": "docsify serve docs",
     "prebuild": "npm run clean:build",
     "build": "rollup -c",
@@ -38,6 +39,7 @@
     "babel-preset-vue": "^2.0.2",
     "concurrently": "^4.1.0",
     "docsify-cli": "^4.3.0",
+    "es-dev-server": "^1.40.0",
     "eslint": "^5.16.0",
     "eslint-config-prettier": "^4.3.0",
     "eslint-plugin-prettier": "^3.1.0",
